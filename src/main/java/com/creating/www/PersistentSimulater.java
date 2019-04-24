@@ -1,5 +1,6 @@
 package com.creating.www;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -8,6 +9,9 @@ private	DataBlockFactory fatory;
 public static PersistentSimulater instance(int blockTime) {
 	return new PersistentSimulater().withFactory(new DataBlockFactory(blockTime));
 }
+public static PersistentSimulater instance(DataBlockFactory storer) {
+	return new PersistentSimulater().withFactory(storer);
+}
 private PersistentSimulater() {
 	// TODO Auto-generated constructor stub
 }
@@ -15,7 +19,13 @@ protected PersistentSimulater withFactory(DataBlockFactory factory) {
 	this.fatory=factory;
 	return this;
 }
-public static class DataBlock{
+public static class DataBlock implements Serializable{
+	public String x="x";
+	@Override
+	public java.lang.String toString() {
+		// TODO Auto-generated method stub
+		return String.format("{x:%s}",x);
+	}
 	
 }
 public static class DataBlockFactory{
@@ -35,6 +45,10 @@ public static class DataBlockFactory{
 		this.blockTime=blockTime;
 		this.storer=storer;
 	}
+	@SuppressWarnings("unused")
+	private DataBlockFactory() {
+		//todo
+	}
 	public DataBlock want(String key) {
 		try {
 			Thread.sleep(blockTime*1000L);
@@ -43,11 +57,20 @@ public static class DataBlockFactory{
 		}
 		return storer.get(key);
 	}
+	public DataBlock add(String key, DataBlock data) {
+		if(storer==null) return null;
+		return storer.put(key,data);
+	}
 	
 }
 public DataBlock getDataBlock(String key) {
 	if(fatory!=null)
 	return fatory.want(key);
+	return null;
+}
+public DataBlock addDataBlock(String key,DataBlock data) {
+	if(fatory!=null)
+	return fatory.add(key,data);
 	return null;
 }
 }
